@@ -66,3 +66,6 @@ Changes to be committed:
   (use "git restore --staged <file>..." to unstage)
         new file:   github_commands
 
+
+to commit the changes to github repository
+git commit -a -m "<message>"
