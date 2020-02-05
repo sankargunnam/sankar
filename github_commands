@@ -1,0 +1,68 @@
+local version control system
+centralised version control system
+distrubuted version control system
+
+Simple git commands:
+git --version
+
+to do configuration settings
+git config --global user.name "<username>"
+git config --global user.email "<email_id>"
+
+
+to know list of configuration settings
+git config --list
+
+to know specific configration
+git config user.name
+git config user.email
+
+
+git commands help
+man git
+git help
+git help config
+
+to enter into the project
+cd folder_path
+
+to initialize project
+after going to the project folder_path
+git init
+
+
+…or create a new repository on the command line
+echo "# sankar" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/sankargunnam/sankar.git
+git push -u origin master
+…or push an existing repository from the command line
+git remote add origin https://github.com/sankargunnam/sankar.git
+git push -u origin master
+
+
+
+
+echo "# newfiles i am adding" >> README.md
+
+git add .
+
+git commit -m "first commit"
+
+to link local repository with github repository following command need to use
+git remote add origin https://github.com/sankargunnam/sankar.git
+URL should take from github website 
+
+for pushing our project to github repository use below command when promt for user and passwrd, provide github account user and password
+git push -u origin master
+
+to know status of the project
+git status
+
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   github_commands
+
