@@ -69,3 +69,5 @@ Changes to be committed:
 
 to commit the changes to github repository
 git commit -a -m "<message>"
+
+
