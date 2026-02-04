@@ -16,7 +16,9 @@ This repository contains documentation and guides for working with SAP HANA and 
 - HOW TO LOGON TO BI LAUNCH PAD.docx
 
 ### Development Guides
+- **[🚀 Quick Start Guide](QUICK_START.md)** - 5-minute guide to get started with GitHub Agent for HANA
 - **[GitHub Agent Mode for HANA Development](GITHUB_AGENT_FOR_HANA_DEVELOPMENT.md)** - Comprehensive guide on using GitHub Copilot Agent mode to develop SAP HANA graphical calculation views
+- **[HANA Examples](hana_examples/)** - Working calculation view examples
 
 ### Version Control
 - [GitHub Commands Reference](github_commands) - Basic Git commands and workflows
