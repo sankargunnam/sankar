@@ -151,6 +151,9 @@
         <calculatedViewAttribute datatype="DECIMAL" id="PROFIT_MARGIN" length="5" scale="2" expressionLanguage="COLUMN_ENGINE">
           <formula>(REVENUE - (QUANTITY * COST)) / REVENUE * 100</formula>
         </calculatedViewAttribute>
+        <calculatedViewAttribute datatype="NVARCHAR" id="COST_REVENUE_MATCH" length="3" expressionLanguage="COLUMN_ENGINE">
+          <formula>CASE WHEN (QUANTITY * COST) = REVENUE THEN 'Yes' ELSE 'No' END</formula>
+        </calculatedViewAttribute>
       </calculatedViewAttributes>
       <input node="Join_Sales_Customers">
         <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_ID" source="ORDER_ID"/>
@@ -187,12 +190,9 @@
         <viewAttribute id="COST" aggregationType="sum"/>
         <viewAttribute id="PROFIT" aggregationType="sum"/>
         <viewAttribute id="PROFIT_MARGIN" aggregationType="avg"/>
+        <viewAttribute id="COST_REVENUE_MATCH"/>
       </viewAttributes>
-      <calculatedViewAttributes>
-        <calculatedViewAttribute datatype="NVARCHAR" id="COST_REVENUE_MATCH" length="3" expressionLanguage="COLUMN_ENGINE">
-          <formula>CASE WHEN (QUANTITY * COST) = REVENUE THEN 'Yes' ELSE 'No' END</formula>
-        </calculatedViewAttribute>
-      </calculatedViewAttributes>
+      <calculatedViewAttributes/>
       <restrictedViewAttributes/>
       <input node="Join_All">
         <mapping xsi:type="Calculation:AttributeMapping" target="FISCAL_YEAR" source="FISCAL_YEAR"/>
@@ -205,6 +205,7 @@
         <mapping xsi:type="Calculation:AttributeMapping" target="COST" source="COST"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="PROFIT" source="PROFIT"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="PROFIT_MARGIN" source="PROFIT_MARGIN"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COST_REVENUE_MATCH" source="COST_REVENUE_MATCH"/>
       </input>
     </calculationView>
   </calculationViews>
