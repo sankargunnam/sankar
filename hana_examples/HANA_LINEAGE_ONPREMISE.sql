@@ -230,11 +230,13 @@ END;
 
 -- =====================================================================
 -- SECTION 4b: SQL SCRIPT WITH COLUMNAR/LINEAR DISPLAY ✨ NEW
--- Display hierarchy with each level in its own column (LEVEL_0, LEVEL_1, etc.)
+-- Display hierarchy with each level in its own column (Object, L1, L2, L3, L4)
 -- Perfect for Excel export and data analysis
+-- Format matches: Object | L1 | L2 | L3 | L4
 -- =====================================================================
 
 -- Query 4b.1: Get lineage in columnar format where each level is a separate column
+-- Output format: Object (Root CV), L1, L2, L3, L4 (subsequent levels)
 DO
 BEGIN
     DECLARE lv_schema NVARCHAR(256) := 'SGUNNAM';  -- ← CHANGE THIS
@@ -298,34 +300,38 @@ BEGIN
     END WHILE;
     
     -- Pivot the data: convert levels to columns
-    -- Each level becomes a separate column (LEVEL_0, LEVEL_1, LEVEL_2, etc.)
+    -- Object = Root CV, L1 = Level 1, L2 = Level 2, L3 = Level 3, L4 = Level 4
     SELECT 
-        LINEAGE_PATH,
-        MAX(CASE WHEN LEVEL = 0 THEN OBJECT_NAME END) AS LEVEL_0,
-        MAX(CASE WHEN LEVEL = 1 THEN OBJECT_NAME END) AS LEVEL_1,
-        MAX(CASE WHEN LEVEL = 2 THEN OBJECT_NAME END) AS LEVEL_2,
-        MAX(CASE WHEN LEVEL = 3 THEN OBJECT_NAME END) AS LEVEL_3,
-        MAX(CASE WHEN LEVEL = 4 THEN OBJECT_NAME END) AS LEVEL_4,
-        MAX(CASE WHEN LEVEL = 5 THEN OBJECT_NAME END) AS LEVEL_5
+        MAX(CASE WHEN LEVEL = 0 THEN OBJECT_NAME END) AS "Object",
+        MAX(CASE WHEN LEVEL = 1 THEN OBJECT_NAME END) AS "L1",
+        MAX(CASE WHEN LEVEL = 2 THEN OBJECT_NAME END) AS "L2",
+        MAX(CASE WHEN LEVEL = 3 THEN OBJECT_NAME END) AS "L3",
+        MAX(CASE WHEN LEVEL = 4 THEN OBJECT_NAME END) AS "L4"
     FROM :lt_lineage_paths
     GROUP BY LINEAGE_PATH
-    ORDER BY LINEAGE_PATH;
+    ORDER BY "Object", "L1", "L2", "L3", "L4";
 END;
 
 -- Output: Columnar format with each level in its own column
--- Example output:
--- LINEAGE_PATH                   | LEVEL_0 | LEVEL_1      | LEVEL_2      | LEVEL_3 | LEVEL_4 | LEVEL_5
--- -------------------------------|---------|--------------|--------------|---------|---------|--------
--- CV_TEST -> CUSTOMERS           | CV_TEST | CUSTOMERS    | NULL         | NULL    | NULL    | NULL
--- CV_TEST -> PRODUCTS            | CV_TEST | PRODUCTS     | NULL         | NULL    | NULL    | NULL
--- CV_TEST -> CV_SALES -> SALES   | CV_TEST | CV_SALES     | SALES        | NULL    | NULL    | NULL
+-- Example output (matches the exact format requested):
+-- Object  | L1      | L2        | L3       | L4
+-- --------|---------|-----------|----------|----------
+-- CV1     | CV2     | Table 1   | NULL     | NULL
+-- CV1     | CV2     | Table 2   | NULL     | NULL
+-- CV1     | CV2     | CV3       | Table 3  | NULL
+-- CV1     | CV4     | CV5       | Table 4  | NULL
+-- CV1     | CV4     | CV5       | CV 7     | Table 5
+-- CV1     | CV4     | CV6       | CV 8     | Table 6
+-- CV1     | CV4     | CV6       | CV 9     | Table 7
 --
 -- Benefits:
+-- ✓ Matches exact format requirement (Object, L1, L2, L3, L4)
 -- ✓ Each level in separate column (easy to read horizontally)
 -- ✓ Clean tabular format (no tree symbols)
 -- ✓ Perfect for Excel/CSV export
 -- ✓ Easy to analyze and create reports
 -- ✓ Shows complete lineage path in one row
+-- ✓ Each row = one complete path from root to leaf
 
 
 -- =====================================================================
