@@ -12,7 +12,12 @@
 - **Name**: `COST_REVENUE_MATCH`
 - **Type**: NVARCHAR(3)
 - **Location**: Aggregation node (calculatedViewAttributes)
-- **Purpose**: Validates if QUANTITY × COST equals REVENUE
+- **Purpose**: Compares if aggregate-level QUANTITY × COST equals REVENUE
+
+**Important**: This formula operates on already-aggregated values (SUM operations), comparing 
+`SUM(QUANTITY) × SUM(COST)` with `SUM(REVENUE)`. This is an aggregate-level comparison, not a 
+line-by-line validation. The result indicates whether the mathematical relationship holds true 
+at the summary dimension level.
 
 ### Formula
 ```sql
@@ -20,9 +25,17 @@ CASE WHEN (QUANTITY * COST) = REVENUE THEN 'Yes' ELSE 'No' END
 ```
 
 ### Logic
-- Compares aggregated values: `(SUM(QUANTITY) × SUM(COST))` vs `SUM(REVENUE)`
+- Compares aggregated values at the summary level
+- **Left side**: `SUM(QUANTITY) × SUM(COST)` - Product of aggregated quantity and cost
+- **Right side**: `SUM(REVENUE)` - Total revenue
 - Returns **"Yes"** when values match
 - Returns **"No"** when values differ
+
+**Important Note**: This formula compares the product of aggregated sums, not the sum of products. 
+The mathematical relationship `SUM(Q × C) ≠ SUM(Q) × SUM(C)` means this comparison is checking 
+aggregate-level equality, which may differ from line-item level calculations. This is useful for 
+validating data integrity at the summary level but should not be confused with detailed line-item 
+validation.
 
 ## Implementation Details
 
@@ -99,7 +112,19 @@ This calculated column provides:
 
 ## Notes
 
-- The comparison is done at the aggregation level (after SUM operations)
+- **Mathematical Behavior**: The comparison is done at the aggregation level using the formula 
+  `SUM(QUANTITY) × SUM(COST) = SUM(REVENUE)`. This is different from comparing individual 
+  line items where `QUANTITY × COST = REVENUE`. Due to the mathematical property that 
+  `SUM(A × B) ≠ SUM(A) × SUM(B)` in general, this aggregate-level comparison may show "No" 
+  even when all individual line items are correct.
+  
+- **Use Case**: This formula is useful for:
+  - Validating that aggregate totals match expected relationships
+  - Identifying summary-level discrepancies
+  - Data quality checks at the aggregate dimension level
+  
+- **Not suitable for**: Line-by-line validation of individual transactions
+
 - NULL values in QUANTITY, COST, or REVENUE will result in "No"
 - The column is available in all queries against the calculation view
 - No impact on existing queries or reports (backward compatible)
