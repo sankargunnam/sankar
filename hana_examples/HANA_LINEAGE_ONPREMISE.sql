@@ -219,7 +219,7 @@ BEGIN
         OBJECT_SCHEMA,
         OBJECT_NAME,
         OBJECT_TYPE,
-        REPEAT('  ', LEVEL - 1) || '└─ ' || OBJECT_NAME || ' [' || OBJECT_TYPE || ']' AS HIERARCHY_DISPLAY,
+        LPAD('', (LEVEL - 1) * 2, ' ') || '└─ ' || OBJECT_NAME || ' [' || OBJECT_TYPE || ']' AS HIERARCHY_DISPLAY,
         OBJECT_PATH
     FROM :lt_results
     ORDER BY LEVEL, OBJECT_NAME;
