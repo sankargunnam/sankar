@@ -4,20 +4,19 @@
 
 **Date**: 2026-02-04  
 **File**: `hana_examples/CV_SALES_ANALYSIS.hdbcalculationview`  
-**Change**: Added calculated column to Aggregation node
+**Change**: Added calculated column to Join_All node (fixed for COLUMN_ENGINE compatibility)
+
+**Technical Note**: The initial implementation incorrectly placed the calculation in the Aggregation node, which would fail in HANA because COLUMN_ENGINE cannot perform arithmetic on aggregated measures. The calculation has been moved to the Join_All node where it operates on row-level data before aggregation.
 
 ## New Calculated Column
 
 ### Column Details
 - **Name**: `COST_REVENUE_MATCH`
 - **Type**: NVARCHAR(3)
-- **Location**: Aggregation node (calculatedViewAttributes)
-- **Purpose**: Compares if aggregate-level QUANTITY × COST equals REVENUE
+- **Location**: Join_All node (calculatedViewAttributes) - calculated before aggregation
+- **Purpose**: Compares if row-level QUANTITY × COST equals REVENUE for each transaction
 
-**Important**: This formula operates on already-aggregated values (SUM operations), comparing 
-`SUM(QUANTITY) × SUM(COST)` with `SUM(REVENUE)`. This is an aggregate-level comparison, not a 
-line-by-line validation. The result indicates whether the mathematical relationship holds true 
-at the summary dimension level.
+**Important**: This formula operates on **row-level values** (before aggregation) in the Join_All node. The calculation compares `QUANTITY × COST` with `REVENUE` for each individual transaction row, then the "Yes"/"No" results flow through to the Aggregation node. This is the correct approach for HANA COLUMN_ENGINE compatibility.
 
 ### Formula
 ```sql
@@ -25,22 +24,18 @@ CASE WHEN (QUANTITY * COST) = REVENUE THEN 'Yes' ELSE 'No' END
 ```
 
 ### Logic
-- Compares aggregated values at the summary level
-- **Left side**: `SUM(QUANTITY) × SUM(COST)` - Product of aggregated quantity and cost
-- **Right side**: `SUM(REVENUE)` - Total revenue
-- Returns **"Yes"** when values match
-- Returns **"No"** when values differ
+- Calculates at the **row level** (before aggregation) in the Join_All node
+- **Comparison**: For each transaction: `QUANTITY × COST = REVENUE`
+- Returns **"Yes"** when values match for that row
+- Returns **"No"** when values differ for that row
+- The results flow through the Aggregation node as a dimension attribute
 
-**Important Note**: This formula compares the product of aggregated sums, not the sum of products. 
-The mathematical relationship `SUM(Q × C) ≠ SUM(Q) × SUM(C)` means this comparison is checking 
-aggregate-level equality, which may differ from line-item level calculations. This is useful for 
-validating data integrity at the summary level but should not be confused with detailed line-item 
-validation.
+**COLUMN_ENGINE Compatibility**: This formula uses COLUMN_ENGINE expression language and operates on row-level data (not aggregated measures). HANA does not support arithmetic operations on aggregated measures in COLUMN_ENGINE, which is why the calculation must be performed before aggregation in the Join_All node.
 
 ## Implementation Details
 
-### 1. Calculated Column in Aggregation Node
-Added to the `calculatedViewAttributes` section at line 191-195:
+### 1. Calculated Column in Join_All Node
+Added to the `calculatedViewAttributes` section at line 154-156:
 
 ```xml
 <calculatedViewAttribute datatype="NVARCHAR" id="COST_REVENUE_MATCH" length="3" expressionLanguage="COLUMN_ENGINE">
@@ -48,7 +43,18 @@ Added to the `calculatedViewAttributes` section at line 191-195:
 </calculatedViewAttribute>
 ```
 
-### 2. Logical Model Attribute
+**Important**: The calculation is performed in the **Join_All node** (before aggregation), not in the Aggregation node. This is required because HANA's COLUMN_ENGINE expression language cannot perform arithmetic operations on aggregated measures. At the Join_All level, QUANTITY, COST, and REVENUE are still row-level values, making the calculation compatible with COLUMN_ENGINE.
+
+### 2. Aggregation Node - Pass-Through Attribute
+Added to the `viewAttributes` section at line 193:
+
+```xml
+<viewAttribute id="COST_REVENUE_MATCH"/>
+```
+
+The Aggregation node receives the pre-calculated "Yes"/"No" values from Join_All and passes them through as a dimension attribute. The calculated values flow through the aggregation, with the attribute showing based on the dimension grouping.
+
+### 3. Logical Model Attribute
 Added to the `attributes` section at line 235-238:
 
 ```xml
@@ -58,7 +64,7 @@ Added to the `attributes` section at line 235-238:
 </attribute>
 ```
 
-### 3. Updated Measure Orders
+### 4. Updated Measure Orders
 All base measures renumbered to accommodate new attribute:
 - QUANTITY: 6 → 7
 - REVENUE: 7 → 8
@@ -112,19 +118,23 @@ This calculated column provides:
 
 ## Notes
 
-- **Mathematical Behavior**: The comparison is done at the aggregation level using the formula 
-  `SUM(QUANTITY) × SUM(COST) = SUM(REVENUE)`. This is different from comparing individual 
-  line items where `QUANTITY × COST = REVENUE`. Due to the mathematical property that 
-  `SUM(A × B) ≠ SUM(A) × SUM(B)` in general, this aggregate-level comparison may show "No" 
-  even when all individual line items are correct.
+- **Calculation Level**: The comparison is done at the **row level** in the Join_All node before aggregation. 
+  Each transaction row is evaluated: `QUANTITY × COST = REVENUE`, producing "Yes" or "No" for that row.
   
-- **Use Case**: This formula is useful for:
-  - Validating that aggregate totals match expected relationships
-  - Identifying summary-level discrepancies
-  - Data quality checks at the aggregate dimension level
+- **COLUMN_ENGINE Requirement**: HANA's COLUMN_ENGINE expression language cannot perform arithmetic 
+  operations on aggregated measures. Therefore, the calculation must happen before aggregation where 
+  QUANTITY, COST, and REVENUE are still row-level values.
   
-- **Not suitable for**: Line-by-line validation of individual transactions
+- **Aggregation Behavior**: When aggregated by dimensions (REGION, COUNTRY, etc.), the calculation view 
+  will show the "Yes"/"No" values that correspond to the rows within each dimension grouping. Since 
+  this is a dimension attribute (not a measure), it doesn't aggregate - it shows the attribute value 
+  from the underlying data.
 
+- **Use Case**: This formula is useful for:
+  - Row-level validation of revenue calculations
+  - Identifying individual transactions where QUANTITY × COST doesn't equal REVENUE
+  - Data quality checks at the detail level
+  
 - NULL values in QUANTITY, COST, or REVENUE will result in "No"
 - The column is available in all queries against the calculation view
 - No impact on existing queries or reports (backward compatible)
