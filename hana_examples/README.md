@@ -7,13 +7,14 @@ This directory contains example HANA calculation views that demonstrate how GitH
 ### Calculation Views
 - `CV_SALES_ANALYSIS.hdbcalculationview` - Sales analysis calculation view with joins and aggregations
 - `CV_CUSTOMER_360.hdbcalculationview` - Customer 360 view with multiple data sources
-- `CV_TEST 1.hdbcalculationview` - Test calculation view with Products join, calculated measure, and customer filter
+- `CV_TEST 1.hdbcalculationview` - Test calculation view with Products join, calculated measure, customer filter, and product parameter
 - `CV_TEST.hdbcalculationview` - Basic test calculation view
 
 ### Documentation
 - `CV_SALES_ANALYSIS_CHANGELOG.md` - Change history for Sales Analysis view
 - `CV_TEST_1_TEST_CASES.md` - **Comprehensive test cases for CV_TEST 1** (19 test scenarios)
 - `CV_TEST_1_QUICK_REFERENCE.md` - **Quick reference guide for CV_TEST 1 testing**
+- `CV_TEST_1_PARAMETER_GUIDE.md` - **Product name parameter usage guide**
 
 ## CV_TEST 1 - Test Documentation
 
@@ -34,15 +35,19 @@ The CV_TEST 1 calculation view has comprehensive test documentation including:
 - Common issues and solutions
 - Pass/Fail criteria
 
-### Changes Tested in CV_TEST 1
+### Features in CV_TEST 1
 1. **Products Join** - Displays PRODUCT_NAME instead of PRODUCT_ID
 2. **SELLING_PRICE Calculated Measure** - Formula: UNIT_PRICE - DISCOUNT_AMOUNT - TAX_AMOUNT
 3. **Active Customer Filter** - Only shows customers with STATUS='Active'
+4. **Product Name Parameter** ✨ (NEW) - Optional dropdown to filter by product (Laptop, Mobile Phone, Camera, Watch, TV, Smart bulb)
 
 ### Quick Test
 ```sql
 -- Run this to validate CV_TEST 1 is working correctly
 SELECT COUNT(DISTINCT FIRST_NAME) FROM CV_TEST; -- Should return 3 (active customers)
+
+-- Test with product parameter
+SELECT * FROM CV_TEST('IP_PRODUCT_NAME' => 'Laptop'); -- Filter by Laptop
 ```
 
 ## How to Use These Examples
