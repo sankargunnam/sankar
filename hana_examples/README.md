@@ -15,7 +15,8 @@ This directory contains example HANA calculation views that demonstrate how GitH
 - `CV_TEST_1_TEST_CASES.md` - **Comprehensive test cases for CV_TEST 1** (19 test scenarios)
 - `CV_TEST_1_QUICK_REFERENCE.md` - **Quick reference guide for CV_TEST 1 testing**
 - `CV_TEST_1_PARAMETER_GUIDE.md` - **Product name parameter usage guide**
-- `CV_TEST_1_SQL_EQUIVALENT.sql` - **HANA SQL equivalent of CV_TEST 1 calculation view** ✨ (NEW)
+- `CV_TEST_1_SQL_EQUIVALENT.sql` - **HANA SQL equivalent of CV_TEST 1 calculation view**
+- `HANA_LINEAGE_QUERY.sql` - **Recursive lineage query for calculation views** ✨ (NEW)
 
 ## CV_TEST 1 - Test Documentation
 
@@ -42,6 +43,15 @@ The CV_TEST 1 calculation view has comprehensive test documentation including:
 - Usage examples and parameter handling
 - Performance optimization notes
 - Testing queries
+
+#### 🔍 Lineage Query (`HANA_LINEAGE_QUERY.sql`) ✨ NEW
+- Recursive SQL to pull all lineages for calculation views
+- Uses `OBJECT_DEPENDENCIES` table with `DEPENDENCY_TYPE = 1`
+- Shows complete hierarchy (CV → CV → Table)
+- Hierarchical tree display with visual indicators
+- Stored procedure for reusable queries
+- Prevents circular dependencies
+- Multiple query formats and usage examples
 
 ### Features in CV_TEST 1
 1. **Products Join** - Displays PRODUCT_NAME instead of PRODUCT_ID
@@ -83,6 +93,7 @@ Ask GitHub Agent to:
 - Generate documentation
 - **Create comprehensive test cases** (as demonstrated with CV_TEST 1)
 - **Convert calculation views to SQL** (see CV_TEST_1_SQL_EQUIVALENT.sql)
+- **Generate lineage queries** (see HANA_LINEAGE_QUERY.sql) ✨ NEW
 
 ## Testing Best Practices
 
