@@ -20,8 +20,9 @@ This repository contains documentation and guides for working with SAP HANA and 
 - **[GitHub Agent Mode for HANA Development](GITHUB_AGENT_FOR_HANA_DEVELOPMENT.md)** - Comprehensive guide on using GitHub Copilot Agent mode to develop SAP HANA graphical calculation views
 - **[HANA Examples](hana_examples/)** - Working calculation view examples
 
-### Version Control
+### Version Control & CI/CD
 - [GitHub Commands Reference](github_commands) - Basic Git commands and workflows
+- **[🔧 HANA Git & CI/CD Integration Guide](HANA_GIT_CICD_INTEGRATION.md)** ⭐ NEW - Complete guide for integrating Git and CI/CD with HANA Studio on-premise
 
 ## Using GitHub Agent for HANA Development
 
@@ -34,3 +35,17 @@ This guide covers:
 - Exporting/importing HANA calculation views
 - Using AI assistance for HANA development
 - Best practices and integration strategies
+
+## Integrating Git & CI/CD with HANA Studio On-Premise
+
+Need to integrate version control and automated deployments with your HANA Studio environment?
+
+**Yes, it's possible!** Check out our comprehensive guide: [HANA_GIT_CICD_INTEGRATION.md](HANA_GIT_CICD_INTEGRATION.md)
+
+This guide covers:
+- **The Challenge**: Why HANA Studio doesn't have native Git integration
+- **3 Solution Approaches**: File-based sync, HDI, and Hybrid workflows
+- **CI/CD Pipelines**: GitHub Actions and Jenkins examples
+- **Deployment Automation**: Scripts for automated HANA deployments
+- **Best Practices**: Repository structure, branching strategy, security
+- **Complete Workflows**: Step-by-step implementation examples
