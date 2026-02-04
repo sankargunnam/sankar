@@ -229,6 +229,106 @@ END;
 
 
 -- =====================================================================
+-- SECTION 4b: SQL SCRIPT WITH COLUMNAR/LINEAR DISPLAY ✨ NEW
+-- Display hierarchy with each level in its own column (LEVEL_0, LEVEL_1, etc.)
+-- Perfect for Excel export and data analysis
+-- =====================================================================
+
+-- Query 4b.1: Get lineage in columnar format where each level is a separate column
+DO
+BEGIN
+    DECLARE lv_schema NVARCHAR(256) := 'SGUNNAM';  -- ← CHANGE THIS
+    DECLARE lv_cv_name NVARCHAR(256) := 'CV_TEST';  -- ← CHANGE THIS
+    DECLARE lv_level INT := 0;
+    DECLARE lv_max_level INT := 5;  -- Maximum levels to traverse
+    
+    -- Initialize with root CV (Level 0)
+    lt_lineage_paths = SELECT 
+        :lv_cv_name AS LINEAGE_PATH,
+        0 AS LEVEL,
+        :lv_cv_name AS OBJECT_NAME,
+        'ROOT' AS OBJECT_TYPE,
+        0 AS PATH_ID
+    FROM DUMMY;
+    
+    -- Add Level 1 dependencies
+    lt_new_level = SELECT 
+        :lv_cv_name || ' -> ' || BASE_OBJECT_NAME AS LINEAGE_PATH,
+        1 AS LEVEL,
+        BASE_OBJECT_NAME AS OBJECT_NAME,
+        BASE_OBJECT_TYPE AS OBJECT_TYPE,
+        ROW_NUMBER() OVER (ORDER BY BASE_OBJECT_NAME) AS PATH_ID
+    FROM SYS.OBJECT_DEPENDENCIES
+    WHERE DEPENDENT_SCHEMA_NAME = :lv_schema
+        AND DEPENDENT_OBJECT_NAME = :lv_cv_name
+        AND DEPENDENCY_TYPE = 1;
+    
+    lt_lineage_paths = SELECT * FROM :lt_lineage_paths
+                       UNION ALL
+                       SELECT * FROM :lt_new_level;
+    
+    lv_level := 1;
+    
+    -- Iteratively add more levels
+    WHILE :lv_level < :lv_max_level DO
+        lt_new_level = SELECT 
+            LP.LINEAGE_PATH || ' -> ' || OD.BASE_OBJECT_NAME AS LINEAGE_PATH,
+            :lv_level + 1 AS LEVEL,
+            OD.BASE_OBJECT_NAME AS OBJECT_NAME,
+            OD.BASE_OBJECT_TYPE AS OBJECT_TYPE,
+            LP.PATH_ID AS PATH_ID
+        FROM :lt_lineage_paths LP
+        INNER JOIN SYS.OBJECT_DEPENDENCIES OD
+            ON LP.OBJECT_NAME = OD.DEPENDENT_OBJECT_NAME
+            AND OD.DEPENDENCY_TYPE = 1
+        WHERE LP.LEVEL = :lv_level
+            AND LP.OBJECT_TYPE != 'ROOT';  -- Don't expand the root again
+        
+        -- Exit if no more dependencies found
+        IF RECORD_COUNT(:lt_new_level) = 0 THEN
+            BREAK;
+        END IF;
+        
+        -- Add new level to results
+        lt_lineage_paths = SELECT * FROM :lt_lineage_paths
+                           UNION ALL
+                           SELECT * FROM :lt_new_level;
+        
+        lv_level := :lv_level + 1;
+    END WHILE;
+    
+    -- Pivot the data: convert levels to columns
+    -- Each level becomes a separate column (LEVEL_0, LEVEL_1, LEVEL_2, etc.)
+    SELECT 
+        LINEAGE_PATH,
+        MAX(CASE WHEN LEVEL = 0 THEN OBJECT_NAME END) AS LEVEL_0,
+        MAX(CASE WHEN LEVEL = 1 THEN OBJECT_NAME END) AS LEVEL_1,
+        MAX(CASE WHEN LEVEL = 2 THEN OBJECT_NAME END) AS LEVEL_2,
+        MAX(CASE WHEN LEVEL = 3 THEN OBJECT_NAME END) AS LEVEL_3,
+        MAX(CASE WHEN LEVEL = 4 THEN OBJECT_NAME END) AS LEVEL_4,
+        MAX(CASE WHEN LEVEL = 5 THEN OBJECT_NAME END) AS LEVEL_5
+    FROM :lt_lineage_paths
+    GROUP BY LINEAGE_PATH
+    ORDER BY LINEAGE_PATH;
+END;
+
+-- Output: Columnar format with each level in its own column
+-- Example output:
+-- LINEAGE_PATH                   | LEVEL_0 | LEVEL_1      | LEVEL_2      | LEVEL_3 | LEVEL_4 | LEVEL_5
+-- -------------------------------|---------|--------------|--------------|---------|---------|--------
+-- CV_TEST -> CUSTOMERS           | CV_TEST | CUSTOMERS    | NULL         | NULL    | NULL    | NULL
+-- CV_TEST -> PRODUCTS            | CV_TEST | PRODUCTS     | NULL         | NULL    | NULL    | NULL
+-- CV_TEST -> CV_SALES -> SALES   | CV_TEST | CV_SALES     | SALES        | NULL    | NULL    | NULL
+--
+-- Benefits:
+-- ✓ Each level in separate column (easy to read horizontally)
+-- ✓ Clean tabular format (no tree symbols)
+-- ✓ Perfect for Excel/CSV export
+-- ✓ Easy to analyze and create reports
+-- ✓ Shows complete lineage path in one row
+
+
+-- =====================================================================
 -- SECTION 5: FIND ALL BASE TABLES (Leaf Nodes)
 -- Shows only the final base tables, skipping intermediate CVs
 -- =====================================================================
