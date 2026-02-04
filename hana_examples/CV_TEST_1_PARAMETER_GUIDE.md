@@ -65,14 +65,16 @@ The parameter appears as a dropdown filter when the calculation view is consumed
 
 ### Default Behavior (No Selection or "All Products")
 When "All Products" is selected (default):
-- **Filter Applied**: `"PRODUCT_NAME" LIKE '%'`
+- **Parameter Value**: "%"
+- **Filter Evaluation**: `('%' = '%') OR ("PRODUCT_NAME" = '%')` → TRUE (all rows pass)
 - **Result**: All products are displayed
-- **Performance**: No filtering overhead
+- **Performance**: Efficient boolean evaluation
 - **Use Case**: General reporting, dashboard overview
 
 ### With Specific Product Selection
 When a specific product is selected (e.g., "Laptop"):
-- **Filter Applied**: `"PRODUCT_NAME" LIKE 'Laptop'`
+- **Parameter Value**: "Laptop"
+- **Filter Evaluation**: `('Laptop' = '%') OR ("PRODUCT_NAME" = 'Laptop')` → Only Laptop rows pass
 - **Result**: Only data for that specific product is displayed
 - **Performance**: Filter applied at PR_PRODUCTS projection level (early filtering)
 - **Use Case**: Product-specific analysis, detailed reports
@@ -83,21 +85,24 @@ When a specific product is selected (e.g., "Laptop"):
 The filter is applied at the **PR_PRODUCTS projection view** level:
 
 ```xml
-<filter>"PRODUCT_NAME" LIKE '$$IP_PRODUCT_NAME$$'</filter>
+<filter>('$$IP_PRODUCT_NAME$$' = '%') OR ("PRODUCT_NAME" = '$$IP_PRODUCT_NAME$$')</filter>
 ```
 
 ### How It Works
 1. User selects parameter value (default: "%")
-2. Value replaces `$$IP_PRODUCT_NAME$$` placeholder
-3. Filter expression becomes: `"PRODUCT_NAME" LIKE '%'` or `"PRODUCT_NAME" LIKE 'Laptop'`
-4. LIKE operator with "%" matches all product names
-5. LIKE operator with specific name matches only that product
+2. Value replaces `$$IP_PRODUCT_NAME$$` placeholder in both places
+3. Filter uses OR logic compatible with COLUMN_ENGINE:
+   - **First condition**: `'$$IP_PRODUCT_NAME$$' = '%'` checks if wildcard is selected
+   - **Second condition**: `"PRODUCT_NAME" = '$$IP_PRODUCT_NAME$$'` matches specific product
+4. If parameter is "%", first condition is TRUE → all rows pass
+5. If parameter is specific product, second condition filters to that product
 
-### Why LIKE Instead of =
-- **Flexibility**: Allows wildcard matching
-- **Default "All"**: "%" wildcard matches everything
-- **Single Expression**: No need for complex conditional logic
-- **Extensible**: Can be enhanced for partial matching if needed
+### Why OR Logic Instead of SQL LIKE
+- **COLUMN_ENGINE Compatible**: LIKE is SQL syntax, not supported in COLUMN_ENGINE
+- **Wildcard Handling**: First condition handles "%" for "All Products"
+- **Exact Matching**: Second condition filters specific products
+- **Simple Logic**: Boolean OR expression, no complex syntax needed
+- **Performance**: Efficient evaluation with short-circuit OR
 
 ## Examples
 
@@ -219,15 +224,17 @@ The variable is mapped to the PR_PRODUCTS projection view with a filter:
 <!-- Filter in PR_PRODUCTS Projection -->
 <calculationView xsi:type="Calculation:ProjectionView" id="PR_PRODUCTS">
   ...
-  <filter>"PRODUCT_NAME" LIKE '$$IP_PRODUCT_NAME$$'</filter>
+  <filter>('$$IP_PRODUCT_NAME$$' = '%') OR ("PRODUCT_NAME" = '$$IP_PRODUCT_NAME$$')</filter>
 </calculationView>
 ```
 
 **Key Points**:
-- Filter uses LIKE operator for pattern matching
+- Filter uses OR logic compatible with COLUMN_ENGINE (not SQL LIKE)
+- First condition: `'$$IP_PRODUCT_NAME$$' = '%'` checks for wildcard
+- Second condition: `"PRODUCT_NAME" = '$$IP_PRODUCT_NAME$$'` matches specific product
 - `$$IP_PRODUCT_NAME$$` is replaced with parameter value at runtime
-- Default value "%" matches all products (wildcard)
-- Specific values match exactly (e.g., "Laptop")
+- Default value "%" makes first condition TRUE, allowing all products
+- Specific values make second condition evaluate, filtering to that product
 
 ## Benefits
 
@@ -241,13 +248,13 @@ The variable is mapped to the PR_PRODUCTS projection view with a filter:
 - ✅ **Early Filtering**: Applied at projection level (PR_PRODUCTS)
 - ✅ **Reduced Data Volume**: When specific product selected, fewer rows
 - ✅ **Optimized Joins**: Less data flowing through downstream joins
-- ✅ **Index Friendly**: LIKE with exact match can use indexes
+- ✅ **Efficient Logic**: Simple boolean OR with short-circuit evaluation
 
 ### Development
-- ✅ **Simple Logic**: Single LIKE expression handles all cases
-- ✅ **No Conditionals**: No need for complex IF/ELSE logic
+- ✅ **COLUMN_ENGINE Compatible**: No SQL-specific syntax (no LIKE)
+- ✅ **Simple Logic**: OR expression handles both wildcard and specific cases
+- ✅ **No Conditionals**: Boolean logic, no complex IF/ELSE needed
 - ✅ **Maintainable**: Easy to understand and modify
-- ✅ **Extensible**: Can add partial matching later if needed
 
 ### User Experience
 - ✅ **Easy Selection** - Dropdown prevents typing errors
@@ -288,19 +295,20 @@ WHERE FIRST_NAME = 'John';
 
 ### Product Name Matching
 
-The parameter performs **exact match** filtering on the PRODUCT_NAME field. Ensure that:
+The parameter performs **exact match** filtering on the PRODUCT_NAME field using COLUMN_ENGINE syntax. Ensure that:
 
-1. Product names in the PRODUCTS table match the static list values
+1. Product names in the PRODUCTS table match the static list values exactly
 2. Or update the static list to match your actual product names
-3. Consider using partial matching (LIKE) if needed
+3. The filter uses OR logic with exact equality (no partial matching)
 
 ### Current Test Data Compatibility
 
 With the existing test data:
-- "Laptop" parameter should match products containing "Laptop"
-- Exact product name: "Laptop Computer"
+- "Laptop" parameter will match only products with PRODUCT_NAME exactly "Laptop"
+- If product name is "Laptop Computer", it will NOT match "Laptop" parameter
+- Update static list values to match exact product names in database
 
-If filtering returns no results, verify that product names in the PRODUCTS table match or contain the parameter values.
+If filtering returns no results, verify that product names in the PRODUCTS table match the parameter values exactly.
 
 ## Modifying the Static List
 
