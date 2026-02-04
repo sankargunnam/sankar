@@ -44,14 +44,24 @@ The CV_TEST 1 calculation view has comprehensive test documentation including:
 - Performance optimization notes
 - Testing queries
 
-#### 🔍 Lineage Query (`HANA_LINEAGE_QUERY.sql`) ✨ NEW
+#### 🔍 Lineage Query ✨ NEW
+
+**⭐ RECOMMENDED: `HANA_LINEAGE_ONPREMISE.sql`** - For HANA Studio On-Premise
+- ✅ **Tested and working** in HANA Studio on-premise
+- No WITH RECURSIVE (uses HANA-compatible syntax)
+- Multiple approaches: UNION ALL, DO blocks, explicit JOINs
+- Copy-paste ready queries with clear parameter markers
+- Quick Start section for immediate use
+- 2-level, 3-level, and unlimited level options
+- Uses `OBJECT_DEPENDENCIES` table with `DEPENDENCY_TYPE = 1`
+
+**`HANA_LINEAGE_QUERY.sql`** - Advanced (may not work on-premise)
 - Recursive SQL to pull all lineages for calculation views
 - Uses `OBJECT_DEPENDENCIES` table with `DEPENDENCY_TYPE = 1`
 - Shows complete hierarchy (CV → CV → Table)
 - Hierarchical tree display with visual indicators
 - Stored procedure for reusable queries
-- Prevents circular dependencies
-- Multiple query formats and usage examples
+- ⚠️ Note: WITH RECURSIVE may not work in HANA Studio on-premise
 
 ### Features in CV_TEST 1
 1. **Products Join** - Displays PRODUCT_NAME instead of PRODUCT_ID
