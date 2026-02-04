@@ -13,6 +13,10 @@
       <viewAttributes allViewAttributes="true"/>
       <columnObject schemaName="SGUNNAM" columnObjectName="SALES"/>
     </DataSource>
+    <DataSource id="PRODUCTS" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SGUNNAM" columnObjectName="PRODUCTS"/>
+    </DataSource>
   </dataSources>
   <calculationViews>
     <calculationView xsi:type="Calculation:ProjectionView" id="PR_CUSTOMERS">
@@ -53,6 +57,47 @@
         <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
       </input>
     </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="PR_PRODUCTS">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="PRODUCT_ID"/>
+        <viewAttribute id="PRODUCT_NAME"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#PRODUCTS">
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_NAME" source="PRODUCT_NAME"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="JN_SALES_PRODUCTS" joinOrder="OUTSIDE_IN" joinType="inner">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="ORDER_NUMBER"/>
+        <viewAttribute id="QUANTITY"/>
+        <viewAttribute id="PRODUCT_NAME"/>
+        <viewAttribute id="UNIT_PRICE"/>
+        <viewAttribute id="DISCOUNT_AMOUNT"/>
+        <viewAttribute id="TAX_AMOUNT"/>
+        <viewAttribute id="SHIPPING_AMOUNT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#PR_SALES">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_NUMBER" source="ORDER_NUMBER"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="QUANTITY" source="QUANTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="UNIT_PRICE" source="UNIT_PRICE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="DISCOUNT_AMOUNT" source="DISCOUNT_AMOUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TAX_AMOUNT" source="TAX_AMOUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SHIPPING_AMOUNT" source="SHIPPING_AMOUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+      </input>
+      <input node="#PR_PRODUCTS">
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_NAME" source="PRODUCT_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+      </input>
+      <joinAttribute name="PRODUCT_ID"/>
+    </calculationView>
     <calculationView xsi:type="Calculation:JoinView" id="JN_CUST_SALES" joinOrder="OUTSIDE_IN" joinType="inner">
       <descriptions/>
       <viewAttributes>
@@ -61,7 +106,7 @@
         <viewAttribute id="LAST_NAME"/>
         <viewAttribute id="ORDER_NUMBER"/>
         <viewAttribute id="QUANTITY"/>
-        <viewAttribute id="PRODUCT_ID"/>
+        <viewAttribute id="PRODUCT_NAME"/>
         <viewAttribute id="UNIT_PRICE"/>
         <viewAttribute id="DISCOUNT_AMOUNT"/>
         <viewAttribute id="TAX_AMOUNT"/>
@@ -73,10 +118,10 @@
         <mapping xsi:type="Calculation:AttributeMapping" target="FIRST_NAME" source="FIRST_NAME"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="LAST_NAME" source="LAST_NAME"/>
       </input>
-      <input node="#PR_SALES">
+      <input node="#JN_SALES_PRODUCTS">
         <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_NUMBER" source="ORDER_NUMBER"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="QUANTITY" source="QUANTITY"/>
-        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_NAME" source="PRODUCT_NAME"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="UNIT_PRICE" source="UNIT_PRICE"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="DISCOUNT_AMOUNT" source="DISCOUNT_AMOUNT"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="TAX_AMOUNT" source="TAX_AMOUNT"/>
@@ -97,6 +142,10 @@
         <descriptions defaultDescription="LAST_NAME"/>
         <keyMapping columnObjectName="JN_CUST_SALES" columnName="LAST_NAME"/>
       </attribute>
+      <attribute id="PRODUCT_NAME" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="PRODUCT_NAME"/>
+        <keyMapping columnObjectName="JN_CUST_SALES" columnName="PRODUCT_NAME"/>
+      </attribute>
     </attributes>
     <calculatedAttributes/>
     <privateDataFoundation>
@@ -107,13 +156,9 @@
       </layout>
     </privateDataFoundation>
     <baseMeasures>
-      <measure id="QUANTITY" order="3" aggregationType="sum" engineAggregation="sum" measureType="simple">
+      <measure id="QUANTITY" order="4" aggregationType="sum" engineAggregation="sum" measureType="simple">
         <descriptions defaultDescription="QUANTITY"/>
         <measureMapping columnObjectName="JN_CUST_SALES" columnName="QUANTITY"/>
-      </measure>
-      <measure id="PRODUCT_ID" order="4" aggregationType="sum" engineAggregation="sum" measureType="simple">
-        <descriptions defaultDescription="PRODUCT_ID"/>
-        <measureMapping columnObjectName="JN_CUST_SALES" columnName="PRODUCT_ID"/>
       </measure>
       <measure id="UNIT_PRICE" order="5" aggregationType="sum" engineAggregation="sum" measureType="simple">
         <descriptions defaultDescription="UNIT_PRICE"/>
@@ -139,19 +184,27 @@
   <layout>
     <shapes>
       <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
-        <upperLeftCorner x="99" y="87"/>
+        <upperLeftCorner x="220" y="87"/>
         <rectangleSize height="0" width="0"/>
       </shape>
       <shape expanded="true" modelObjectName="PR_CUSTOMERS" modelObjectNameSpace="CalculationView">
-        <upperLeftCorner x="22" y="261"/>
+        <upperLeftCorner x="22" y="356"/>
         <rectangleSize height="-1" width="-1"/>
       </shape>
       <shape expanded="true" modelObjectName="PR_SALES" modelObjectNameSpace="CalculationView">
-        <upperLeftCorner x="176" y="261"/>
+        <upperLeftCorner x="176" y="356"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="PR_PRODUCTS" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="330" y="356"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="JN_SALES_PRODUCTS" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="253" y="261"/>
         <rectangleSize height="-1" width="-1"/>
       </shape>
       <shape expanded="true" modelObjectName="JN_CUST_SALES" modelObjectNameSpace="CalculationView">
-        <upperLeftCorner x="99" y="165"/>
+        <upperLeftCorner x="220" y="165"/>
         <rectangleSize height="-1" width="-1"/>
       </shape>
     </shapes>
