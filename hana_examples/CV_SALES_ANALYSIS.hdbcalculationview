@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                      xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore"
+                      schemaVersion="3.0" 
+                      id="CV_SALES_ANALYSIS" 
+                      applyPrivilegeType="NONE"
+                      checkAnalyticPrivileges="false"
+                      defaultClient="$$client$$"
+                      defaultLanguage="$$language$$"
+                      hierarchiesSQLEnabled="false"
+                      translationRelevant="true"
+                      visibility="reportingEnabled"
+                      calculationScenarioType="TREE_BASED"
+                      dataCategory="CUBE"
+                      enforceSqlExecution="false"
+                      executionSemantics="UNDEFINED"
+                      outputViewType="Aggregation">
+  <descriptions defaultDescription="Sales Analysis Calculation View"/>
+  <metadata changedAt="2026-02-04 03:44:00"/>
+  
+  <localVariables>
+    <variable id="IP_FISCAL_YEAR" parameter="true">
+      <descriptions defaultDescription="Fiscal Year"/>
+      <variableProperties datatype="INTEGER" mandatory="true">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  
+  <variableMappings/>
+  
+  <dataSources>
+    <DataSource id="SALES_ORDERS" type="DATA_BASE_TABLE">
+      <resourceUri>SALES_ORDERS</resourceUri>
+    </DataSource>
+    <DataSource id="CUSTOMERS" type="DATA_BASE_TABLE">
+      <resourceUri>CUSTOMERS</resourceUri>
+    </DataSource>
+    <DataSource id="PRODUCTS" type="DATA_BASE_TABLE">
+      <resourceUri>PRODUCTS</resourceUri>
+    </DataSource>
+  </dataSources>
+  
+  <calculationViews>
+    <!-- Projection: Sales Orders -->
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_Sales">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="ORDER_ID"/>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="PRODUCT_ID"/>
+        <viewAttribute id="ORDER_DATE"/>
+        <viewAttribute id="QUANTITY" aggregationType="sum"/>
+        <viewAttribute id="UNIT_PRICE" aggregationType="sum"/>
+        <viewAttribute id="TOTAL_AMOUNT" aggregationType="sum"/>
+        <viewAttribute id="FISCAL_YEAR"/>
+      </viewAttributes>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="DECIMAL" id="REVENUE" length="15" scale="2" expressionLanguage="COLUMN_ENGINE">
+          <formula>QUANTITY * UNIT_PRICE</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
+      <input node="SALES_ORDERS"/>
+    </calculationView>
+    
+    <!-- Projection: Customers -->
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_Customers">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="SEGMENT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="CUSTOMERS"/>
+    </calculationView>
+    
+    <!-- Projection: Products -->
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_Products">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="PRODUCT_ID"/>
+        <viewAttribute id="PRODUCT_NAME"/>
+        <viewAttribute id="CATEGORY"/>
+        <viewAttribute id="COST" aggregationType="sum"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="PRODUCTS"/>
+    </calculationView>
+    
+    <!-- Join: Sales with Customers -->
+    <calculationView xsi:type="Calculation:JoinView" id="Join_Sales_Customers" joinType="inner">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="ORDER_ID"/>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="PRODUCT_ID"/>
+        <viewAttribute id="ORDER_DATE"/>
+        <viewAttribute id="QUANTITY" aggregationType="sum"/>
+        <viewAttribute id="REVENUE" aggregationType="sum"/>
+        <viewAttribute id="FISCAL_YEAR"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="SEGMENT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="Projection_Sales">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_ID" source="ORDER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_DATE" source="ORDER_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="QUANTITY" source="QUANTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REVENUE" source="REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="FISCAL_YEAR" source="FISCAL_YEAR"/>
+      </input>
+      <input node="Projection_Customers">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_NAME" source="CUSTOMER_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REGION" source="REGION"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY" source="COUNTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SEGMENT" source="SEGMENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+      </input>
+      <joinAttribute name="CUSTOMER_ID"/>
+    </calculationView>
+    
+    <!-- Join: Sales-Customers with Products -->
+    <calculationView xsi:type="Calculation:JoinView" id="Join_All" joinType="inner">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="ORDER_ID"/>
+        <viewAttribute id="ORDER_DATE"/>
+        <viewAttribute id="QUANTITY" aggregationType="sum"/>
+        <viewAttribute id="REVENUE" aggregationType="sum"/>
+        <viewAttribute id="FISCAL_YEAR"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="SEGMENT"/>
+        <viewAttribute id="PRODUCT_NAME"/>
+        <viewAttribute id="CATEGORY"/>
+        <viewAttribute id="COST" aggregationType="sum"/>
+      </viewAttributes>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="DECIMAL" id="PROFIT" length="15" scale="2" expressionLanguage="COLUMN_ENGINE">
+          <formula>REVENUE - (QUANTITY * COST)</formula>
+        </calculatedViewAttribute>
+        <calculatedViewAttribute datatype="DECIMAL" id="PROFIT_MARGIN" length="5" scale="2" expressionLanguage="COLUMN_ENGINE">
+          <formula>(REVENUE - (QUANTITY * COST)) / REVENUE * 100</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
+      <input node="Join_Sales_Customers">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_ID" source="ORDER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ORDER_DATE" source="ORDER_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="QUANTITY" source="QUANTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REVENUE" source="REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="FISCAL_YEAR" source="FISCAL_YEAR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_NAME" source="CUSTOMER_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REGION" source="REGION"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY" source="COUNTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SEGMENT" source="SEGMENT"/>
+      </input>
+      <input node="Projection_Products">
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_NAME" source="PRODUCT_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CATEGORY" source="CATEGORY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COST" source="COST"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
+      </input>
+      <joinAttribute name="PRODUCT_ID"/>
+    </calculationView>
+    
+    <!-- Aggregation View -->
+    <calculationView xsi:type="Calculation:AggregationView" id="Aggregation">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="FISCAL_YEAR"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="SEGMENT"/>
+        <viewAttribute id="CATEGORY"/>
+        <viewAttribute id="QUANTITY" aggregationType="sum"/>
+        <viewAttribute id="REVENUE" aggregationType="sum"/>
+        <viewAttribute id="COST" aggregationType="sum"/>
+        <viewAttribute id="PROFIT" aggregationType="sum"/>
+        <viewAttribute id="PROFIT_MARGIN" aggregationType="avg"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <restrictedViewAttributes/>
+      <input node="Join_All">
+        <mapping xsi:type="Calculation:AttributeMapping" target="FISCAL_YEAR" source="FISCAL_YEAR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REGION" source="REGION"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY" source="COUNTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SEGMENT" source="SEGMENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CATEGORY" source="CATEGORY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="QUANTITY" source="QUANTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REVENUE" source="REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COST" source="COST"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PROFIT" source="PROFIT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PROFIT_MARGIN" source="PROFIT_MARGIN"/>
+      </input>
+    </calculationView>
+  </calculationViews>
+  
+  <logicalModel id="Aggregation">
+    <descriptions/>
+    <attributes>
+      <attribute id="FISCAL_YEAR" order="1" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Fiscal Year"/>
+        <keyMapping columnObjectName="Aggregation" columnName="FISCAL_YEAR"/>
+      </attribute>
+      <attribute id="REGION" order="2" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Region"/>
+        <keyMapping columnObjectName="Aggregation" columnName="REGION"/>
+      </attribute>
+      <attribute id="COUNTRY" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Country"/>
+        <keyMapping columnObjectName="Aggregation" columnName="COUNTRY"/>
+      </attribute>
+      <attribute id="SEGMENT" order="4" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer Segment"/>
+        <keyMapping columnObjectName="Aggregation" columnName="SEGMENT"/>
+      </attribute>
+      <attribute id="CATEGORY" order="5" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Product Category"/>
+        <keyMapping columnObjectName="Aggregation" columnName="CATEGORY"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+    </privateDataFoundation>
+    <baseMeasures>
+      <measure id="QUANTITY" order="6" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Quantity"/>
+        <measureMapping columnObjectName="Aggregation" columnName="QUANTITY"/>
+      </measure>
+      <measure id="REVENUE" order="7" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Revenue"/>
+        <measureMapping columnObjectName="Aggregation" columnName="REVENUE"/>
+      </measure>
+      <measure id="COST" order="8" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Cost"/>
+        <measureMapping columnObjectName="Aggregation" columnName="COST"/>
+      </measure>
+      <measure id="PROFIT" order="9" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Profit"/>
+        <measureMapping columnObjectName="Aggregation" columnName="PROFIT"/>
+      </measure>
+      <measure id="PROFIT_MARGIN" order="10" aggregationType="avg" measureType="simple">
+        <descriptions defaultDescription="Profit Margin %"/>
+        <measureMapping columnObjectName="Aggregation" columnName="PROFIT_MARGIN"/>
+      </measure>
+    </baseMeasures>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="400" y="100"/>
+      </shape>
+      <shape modelObjectName="Projection_Sales" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="100" y="500"/>
+      </shape>
+      <shape modelObjectName="Projection_Customers" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="300" y="500"/>
+      </shape>
+      <shape modelObjectName="Projection_Products" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="500" y="500"/>
+      </shape>
+      <shape modelObjectName="Join_Sales_Customers" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="200" y="400"/>
+      </shape>
+      <shape modelObjectName="Join_All" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="300" y="300"/>
+      </shape>
+      <shape modelObjectName="Aggregation" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="400" y="200"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

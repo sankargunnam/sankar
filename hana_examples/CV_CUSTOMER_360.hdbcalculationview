@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                      xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore"
+                      schemaVersion="3.0" 
+                      id="CV_CUSTOMER_360" 
+                      applyPrivilegeType="NONE"
+                      checkAnalyticPrivileges="false"
+                      defaultClient="$$client$$"
+                      defaultLanguage="$$language$$"
+                      visibility="reportingEnabled"
+                      calculationScenarioType="TREE_BASED"
+                      dataCategory="DIMENSION"
+                      enforceSqlExecution="false"
+                      executionSemantics="UNDEFINED"
+                      outputViewType="Projection">
+  <descriptions defaultDescription="Customer 360 View - Complete Customer Profile"/>
+  <metadata changedAt="2026-02-04 03:44:00"/>
+  
+  <localVariables/>
+  <variableMappings/>
+  
+  <dataSources>
+    <DataSource id="CUSTOMERS" type="DATA_BASE_TABLE">
+      <resourceUri>CUSTOMERS</resourceUri>
+    </DataSource>
+    <DataSource id="CUSTOMER_CONTACTS" type="DATA_BASE_TABLE">
+      <resourceUri>CUSTOMER_CONTACTS</resourceUri>
+    </DataSource>
+    <DataSource id="CUSTOMER_TRANSACTIONS" type="DATA_BASE_TABLE">
+      <resourceUri>CUSTOMER_TRANSACTIONS</resourceUri>
+    </DataSource>
+    <DataSource id="CUSTOMER_INTERACTIONS" type="DATA_BASE_TABLE">
+      <resourceUri>CUSTOMER_INTERACTIONS</resourceUri>
+    </DataSource>
+  </dataSources>
+  
+  <calculationViews>
+    <!-- Projection: Customer Master Data -->
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_Customers">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="EMAIL"/>
+        <viewAttribute id="PHONE"/>
+        <viewAttribute id="ADDRESS"/>
+        <viewAttribute id="CITY"/>
+        <viewAttribute id="STATE"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="POSTAL_CODE"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="SEGMENT"/>
+        <viewAttribute id="INDUSTRY"/>
+        <viewAttribute id="CREATED_DATE"/>
+        <viewAttribute id="STATUS"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="CUSTOMERS"/>
+    </calculationView>
+    
+    <!-- Aggregation: Transaction Summary -->
+    <calculationView xsi:type="Calculation:AggregationView" id="Agg_Transactions">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="TOTAL_PURCHASES" aggregationType="sum"/>
+        <viewAttribute id="TOTAL_REVENUE" aggregationType="sum"/>
+        <viewAttribute id="AVG_ORDER_VALUE" aggregationType="avg"/>
+        <viewAttribute id="LAST_PURCHASE_DATE" aggregationType="max"/>
+      </viewAttributes>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="INTEGER" id="TRANSACTION_COUNT" expressionLanguage="COLUMN_ENGINE">
+          <formula>COUNT(TRANSACTION_ID)</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
+      <restrictedViewAttributes/>
+      <input node="CUSTOMER_TRANSACTIONS">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_PURCHASES" source="PURCHASE_AMOUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_REVENUE" source="REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="AVG_ORDER_VALUE" source="ORDER_VALUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAST_PURCHASE_DATE" source="TRANSACTION_DATE"/>
+      </input>
+    </calculationView>
+    
+    <!-- Aggregation: Interaction Summary -->
+    <calculationView xsi:type="Calculation:AggregationView" id="Agg_Interactions">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="TOTAL_INTERACTIONS" aggregationType="sum"/>
+        <viewAttribute id="LAST_INTERACTION_DATE" aggregationType="max"/>
+      </viewAttributes>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="INTEGER" id="SUPPORT_TICKETS" expressionLanguage="COLUMN_ENGINE">
+          <formula>COUNT(CASE WHEN INTERACTION_TYPE = 'SUPPORT' THEN 1 END)</formula>
+        </calculatedViewAttribute>
+        <calculatedViewAttribute datatype="INTEGER" id="SALES_CALLS" expressionLanguage="COLUMN_ENGINE">
+          <formula>COUNT(CASE WHEN INTERACTION_TYPE = 'SALES' THEN 1 END)</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
+      <restrictedViewAttributes/>
+      <input node="CUSTOMER_INTERACTIONS">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_INTERACTIONS" source="INTERACTION_COUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAST_INTERACTION_DATE" source="INTERACTION_DATE"/>
+      </input>
+    </calculationView>
+    
+    <!-- Join: Customers with Transactions -->
+    <calculationView xsi:type="Calculation:JoinView" id="Join_Customer_Transactions" joinType="leftOuter">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="EMAIL"/>
+        <viewAttribute id="PHONE"/>
+        <viewAttribute id="ADDRESS"/>
+        <viewAttribute id="CITY"/>
+        <viewAttribute id="STATE"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="POSTAL_CODE"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="SEGMENT"/>
+        <viewAttribute id="INDUSTRY"/>
+        <viewAttribute id="CREATED_DATE"/>
+        <viewAttribute id="STATUS"/>
+        <viewAttribute id="TOTAL_PURCHASES" aggregationType="sum"/>
+        <viewAttribute id="TOTAL_REVENUE" aggregationType="sum"/>
+        <viewAttribute id="AVG_ORDER_VALUE" aggregationType="avg"/>
+        <viewAttribute id="LAST_PURCHASE_DATE"/>
+        <viewAttribute id="TRANSACTION_COUNT" aggregationType="sum"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="Projection_Customers">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_NAME" source="CUSTOMER_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="EMAIL" source="EMAIL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PHONE" source="PHONE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ADDRESS" source="ADDRESS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CITY" source="CITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="STATE" source="STATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY" source="COUNTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="POSTAL_CODE" source="POSTAL_CODE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REGION" source="REGION"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SEGMENT" source="SEGMENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="INDUSTRY" source="INDUSTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CREATED_DATE" source="CREATED_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="STATUS" source="STATUS"/>
+      </input>
+      <input node="Agg_Transactions">
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_PURCHASES" source="TOTAL_PURCHASES"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_REVENUE" source="TOTAL_REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="AVG_ORDER_VALUE" source="AVG_ORDER_VALUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAST_PURCHASE_DATE" source="LAST_PURCHASE_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TRANSACTION_COUNT" source="TRANSACTION_COUNT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+      </input>
+      <joinAttribute name="CUSTOMER_ID"/>
+    </calculationView>
+    
+    <!-- Join: Add Interactions -->
+    <calculationView xsi:type="Calculation:JoinView" id="Join_Customer_360" joinType="leftOuter">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CUSTOMER_ID"/>
+        <viewAttribute id="CUSTOMER_NAME"/>
+        <viewAttribute id="EMAIL"/>
+        <viewAttribute id="PHONE"/>
+        <viewAttribute id="ADDRESS"/>
+        <viewAttribute id="CITY"/>
+        <viewAttribute id="STATE"/>
+        <viewAttribute id="COUNTRY"/>
+        <viewAttribute id="POSTAL_CODE"/>
+        <viewAttribute id="REGION"/>
+        <viewAttribute id="SEGMENT"/>
+        <viewAttribute id="INDUSTRY"/>
+        <viewAttribute id="CREATED_DATE"/>
+        <viewAttribute id="STATUS"/>
+        <viewAttribute id="TOTAL_PURCHASES" aggregationType="sum"/>
+        <viewAttribute id="TOTAL_REVENUE" aggregationType="sum"/>
+        <viewAttribute id="AVG_ORDER_VALUE" aggregationType="avg"/>
+        <viewAttribute id="LAST_PURCHASE_DATE"/>
+        <viewAttribute id="TRANSACTION_COUNT" aggregationType="sum"/>
+        <viewAttribute id="TOTAL_INTERACTIONS" aggregationType="sum"/>
+        <viewAttribute id="LAST_INTERACTION_DATE"/>
+        <viewAttribute id="SUPPORT_TICKETS" aggregationType="sum"/>
+        <viewAttribute id="SALES_CALLS" aggregationType="sum"/>
+      </viewAttributes>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="NVARCHAR" id="CUSTOMER_TIER" length="20" expressionLanguage="COLUMN_ENGINE">
+          <formula>CASE 
+            WHEN TOTAL_REVENUE > 100000 THEN 'PLATINUM'
+            WHEN TOTAL_REVENUE > 50000 THEN 'GOLD'
+            WHEN TOTAL_REVENUE > 10000 THEN 'SILVER'
+            ELSE 'BRONZE'
+          END</formula>
+        </calculatedViewAttribute>
+        <calculatedViewAttribute datatype="INTEGER" id="DAYS_SINCE_LAST_PURCHASE" expressionLanguage="COLUMN_ENGINE">
+          <formula>DAYS_BETWEEN(LAST_PURCHASE_DATE, CURRENT_DATE)</formula>
+        </calculatedViewAttribute>
+        <calculatedViewAttribute datatype="NVARCHAR" id="ENGAGEMENT_LEVEL" length="20" expressionLanguage="COLUMN_ENGINE">
+          <formula>CASE 
+            WHEN TOTAL_INTERACTIONS > 50 THEN 'HIGH'
+            WHEN TOTAL_INTERACTIONS > 20 THEN 'MEDIUM'
+            ELSE 'LOW'
+          END</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
+      <input node="Join_Customer_Transactions">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_NAME" source="CUSTOMER_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="EMAIL" source="EMAIL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="PHONE" source="PHONE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ADDRESS" source="ADDRESS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CITY" source="CITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="STATE" source="STATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY" source="COUNTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="POSTAL_CODE" source="POSTAL_CODE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="REGION" source="REGION"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SEGMENT" source="SEGMENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="INDUSTRY" source="INDUSTRY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CREATED_DATE" source="CREATED_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="STATUS" source="STATUS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_PURCHASES" source="TOTAL_PURCHASES"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_REVENUE" source="TOTAL_REVENUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="AVG_ORDER_VALUE" source="AVG_ORDER_VALUE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAST_PURCHASE_DATE" source="LAST_PURCHASE_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="TRANSACTION_COUNT" source="TRANSACTION_COUNT"/>
+      </input>
+      <input node="Agg_Interactions">
+        <mapping xsi:type="Calculation:AttributeMapping" target="TOTAL_INTERACTIONS" source="TOTAL_INTERACTIONS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAST_INTERACTION_DATE" source="LAST_INTERACTION_DATE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SUPPORT_TICKETS" source="SUPPORT_TICKETS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="SALES_CALLS" source="SALES_CALLS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
+      </input>
+      <joinAttribute name="CUSTOMER_ID"/>
+    </calculationView>
+  </calculationViews>
+  
+  <logicalModel id="Join_Customer_360">
+    <descriptions/>
+    <attributes>
+      <attribute id="CUSTOMER_ID" order="1" attributeHierarchyActive="false" displayAttribute="false" key="true">
+        <descriptions defaultDescription="Customer ID"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="CUSTOMER_ID"/>
+      </attribute>
+      <attribute id="CUSTOMER_NAME" order="2" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer Name"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="CUSTOMER_NAME"/>
+      </attribute>
+      <attribute id="EMAIL" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Email"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="EMAIL"/>
+      </attribute>
+      <attribute id="PHONE" order="4" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Phone"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="PHONE"/>
+      </attribute>
+      <attribute id="CITY" order="5" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="City"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="CITY"/>
+      </attribute>
+      <attribute id="REGION" order="6" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Region"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="REGION"/>
+      </attribute>
+      <attribute id="COUNTRY" order="7" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Country"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="COUNTRY"/>
+      </attribute>
+      <attribute id="SEGMENT" order="8" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer Segment"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="SEGMENT"/>
+      </attribute>
+      <attribute id="INDUSTRY" order="9" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Industry"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="INDUSTRY"/>
+      </attribute>
+      <attribute id="STATUS" order="10" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Status"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="STATUS"/>
+      </attribute>
+      <attribute id="CUSTOMER_TIER" order="11" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer Tier"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="CUSTOMER_TIER"/>
+      </attribute>
+      <attribute id="ENGAGEMENT_LEVEL" order="12" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Engagement Level"/>
+        <keyMapping columnObjectName="Join_Customer_360" columnName="ENGAGEMENT_LEVEL"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+    </privateDataFoundation>
+    <baseMeasures>
+      <measure id="TOTAL_REVENUE" order="13" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Total Revenue"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="TOTAL_REVENUE"/>
+      </measure>
+      <measure id="TRANSACTION_COUNT" order="14" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Transaction Count"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="TRANSACTION_COUNT"/>
+      </measure>
+      <measure id="AVG_ORDER_VALUE" order="15" aggregationType="avg" measureType="simple">
+        <descriptions defaultDescription="Average Order Value"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="AVG_ORDER_VALUE"/>
+      </measure>
+      <measure id="TOTAL_INTERACTIONS" order="16" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Total Interactions"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="TOTAL_INTERACTIONS"/>
+      </measure>
+      <measure id="SUPPORT_TICKETS" order="17" aggregationType="sum" measureType="simple">
+        <descriptions defaultDescription="Support Tickets"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="SUPPORT_TICKETS"/>
+      </measure>
+      <measure id="DAYS_SINCE_LAST_PURCHASE" order="18" aggregationType="avg" measureType="simple">
+        <descriptions defaultDescription="Days Since Last Purchase"/>
+        <measureMapping columnObjectName="Join_Customer_360" columnName="DAYS_SINCE_LAST_PURCHASE"/>
+      </measure>
+    </baseMeasures>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="300" y="100"/>
+      </shape>
+      <shape modelObjectName="Projection_Customers" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="100" y="500"/>
+      </shape>
+      <shape modelObjectName="Agg_Transactions" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="300" y="500"/>
+      </shape>
+      <shape modelObjectName="Agg_Interactions" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="500" y="500"/>
+      </shape>
+      <shape modelObjectName="Join_Customer_Transactions" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="200" y="350"/>
+      </shape>
+      <shape modelObjectName="Join_Customer_360" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="300" y="200"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

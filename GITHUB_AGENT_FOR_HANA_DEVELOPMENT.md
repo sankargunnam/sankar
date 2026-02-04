@@ -229,6 +229,35 @@ GitHub Agent mode is particularly valuable for:
 - Learning HANA best practices
 - Collaborating with distributed teams
 
+## Example Calculation Views
+
+This repository includes working examples of HANA calculation views in the `hana_examples/` directory:
+
+1. **[CV_SALES_ANALYSIS.hdbcalculationview](hana_examples/CV_SALES_ANALYSIS.hdbcalculationview)**
+   - Demonstrates: Projections, Joins, Aggregations
+   - Features: Multiple data sources, calculated columns, profit margin calculations
+   - Use case: Sales analysis by region, country, and product category
+
+2. **[CV_CUSTOMER_360.hdbcalculationview](hana_examples/CV_CUSTOMER_360.hdbcalculationview)**
+   - Demonstrates: Customer 360 view with multiple dimensions
+   - Features: Left outer joins, customer segmentation, engagement metrics
+   - Use case: Complete customer profile with transaction and interaction history
+
+These examples show:
+- ✅ Proper XML structure for HANA calculation views
+- ✅ Node configurations (projection, join, aggregation)
+- ✅ Calculated columns and measures
+- ✅ Join logic between multiple tables
+- ✅ Variables and input parameters
+- ✅ Layout information
+
+**Try it yourself:** Open these files and ask GitHub Agent to:
+- Add a new data source
+- Create additional calculated columns
+- Optimize the join logic
+- Add filters or variables
+- Generate documentation
+
 ## Additional Resources
 
 - SAP HANA Developer Guide
@@ -236,7 +265,8 @@ GitHub Agent mode is particularly valuable for:
 - SAP Business Application Studio
 - GitHub Actions for SAP
 - SAP Cloud Platform Integration
+- [HANA Examples Directory](hana_examples/) - Working calculation view examples
 
 ---
 
-**Need Help?** Start by exporting a simple calculation view to GitHub and experimenting with GitHub Agent's suggestions. Build your workflow incrementally based on your team's needs.
+**Need Help?** Start by reviewing the example calculation views in the `hana_examples/` directory. Export a simple calculation view from your HANA system to GitHub and experiment with GitHub Agent's suggestions. Build your workflow incrementally based on your team's needs.
