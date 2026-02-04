@@ -188,7 +188,11 @@
         <viewAttribute id="PROFIT" aggregationType="sum"/>
         <viewAttribute id="PROFIT_MARGIN" aggregationType="avg"/>
       </viewAttributes>
-      <calculatedViewAttributes/>
+      <calculatedViewAttributes>
+        <calculatedViewAttribute datatype="NVARCHAR" id="COST_REVENUE_MATCH" length="3" expressionLanguage="COLUMN_ENGINE">
+          <formula>CASE WHEN (QUANTITY * COST) = REVENUE THEN 'Yes' ELSE 'No' END</formula>
+        </calculatedViewAttribute>
+      </calculatedViewAttributes>
       <restrictedViewAttributes/>
       <input node="Join_All">
         <mapping xsi:type="Calculation:AttributeMapping" target="FISCAL_YEAR" source="FISCAL_YEAR"/>
@@ -228,6 +232,10 @@
         <descriptions defaultDescription="Product Category"/>
         <keyMapping columnObjectName="Aggregation" columnName="CATEGORY"/>
       </attribute>
+      <attribute id="COST_REVENUE_MATCH" order="6" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Cost-Revenue Match Indicator"/>
+        <keyMapping columnObjectName="Aggregation" columnName="COST_REVENUE_MATCH"/>
+      </attribute>
     </attributes>
     <calculatedAttributes/>
     <privateDataFoundation>
@@ -235,23 +243,23 @@
       <joins/>
     </privateDataFoundation>
     <baseMeasures>
-      <measure id="QUANTITY" order="6" aggregationType="sum" measureType="simple">
+      <measure id="QUANTITY" order="7" aggregationType="sum" measureType="simple">
         <descriptions defaultDescription="Quantity"/>
         <measureMapping columnObjectName="Aggregation" columnName="QUANTITY"/>
       </measure>
-      <measure id="REVENUE" order="7" aggregationType="sum" measureType="simple">
+      <measure id="REVENUE" order="8" aggregationType="sum" measureType="simple">
         <descriptions defaultDescription="Revenue"/>
         <measureMapping columnObjectName="Aggregation" columnName="REVENUE"/>
       </measure>
-      <measure id="COST" order="8" aggregationType="sum" measureType="simple">
+      <measure id="COST" order="9" aggregationType="sum" measureType="simple">
         <descriptions defaultDescription="Cost"/>
         <measureMapping columnObjectName="Aggregation" columnName="COST"/>
       </measure>
-      <measure id="PROFIT" order="9" aggregationType="sum" measureType="simple">
+      <measure id="PROFIT" order="10" aggregationType="sum" measureType="simple">
         <descriptions defaultDescription="Profit"/>
         <measureMapping columnObjectName="Aggregation" columnName="PROFIT"/>
       </measure>
-      <measure id="PROFIT_MARGIN" order="10" aggregationType="avg" measureType="simple">
+      <measure id="PROFIT_MARGIN" order="11" aggregationType="avg" measureType="simple">
         <descriptions defaultDescription="Profit Margin %"/>
         <measureMapping columnObjectName="Aggregation" columnName="PROFIT_MARGIN"/>
       </measure>
