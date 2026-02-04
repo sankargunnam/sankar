@@ -4,8 +4,11 @@
   <localVariables>
     <variable id="IP_PRODUCT_NAME" parameter="true">
       <descriptions defaultDescription="Product Name"/>
-      <variableProperties datatype="NVARCHAR" length="50" mandatory="false">
+      <variableProperties datatype="NVARCHAR" length="50" mandatory="false" defaultValue="%">
         <valueDomain type="StaticList">
+          <listEntry id="%">
+            <descriptions defaultDescription="All Products"/>
+          </listEntry>
           <listEntry id="Laptop">
             <descriptions defaultDescription="Laptop"/>
           </listEntry>
@@ -102,6 +105,7 @@
         <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_ID" source="PRODUCT_ID"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="PRODUCT_NAME" source="PRODUCT_NAME"/>
       </input>
+      <filter>&quot;PRODUCT_NAME&quot; LIKE '$$IP_PRODUCT_NAME$$'</filter>
     </calculationView>
     <calculationView xsi:type="Calculation:JoinView" id="JN_SALES_PRODUCTS" joinOrder="OUTSIDE_IN" joinType="inner">
       <descriptions/>
