@@ -25,13 +25,16 @@
         <viewAttribute id="CUSTOMER_ID"/>
         <viewAttribute id="FIRST_NAME"/>
         <viewAttribute id="LAST_NAME"/>
+        <viewAttribute id="STATUS"/>
       </viewAttributes>
       <calculatedViewAttributes/>
       <input node="#CUSTOMERS">
         <mapping xsi:type="Calculation:AttributeMapping" target="CUSTOMER_ID" source="CUSTOMER_ID"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="FIRST_NAME" source="FIRST_NAME"/>
         <mapping xsi:type="Calculation:AttributeMapping" target="LAST_NAME" source="LAST_NAME"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="STATUS" source="STATUS"/>
       </input>
+      <filter>&quot;STATUS&quot; = 'Active'</filter>
     </calculationView>
     <calculationView xsi:type="Calculation:ProjectionView" id="PR_SALES">
       <descriptions/>
@@ -177,7 +180,12 @@
         <measureMapping columnObjectName="JN_CUST_SALES" columnName="SHIPPING_AMOUNT"/>
       </measure>
     </baseMeasures>
-    <calculatedMeasures/>
+    <calculatedMeasures>
+      <measure id="SELLING_PRICE" order="9" aggregationType="sum" measureType="simple" calculatedMeasureType="counter" engineAggregation="sum" datatype="DECIMAL" length="15" scale="2">
+        <descriptions defaultDescription="SELLING_PRICE"/>
+        <formula>(&quot;UNIT_PRICE&quot; - &quot;DISCOUNT_AMOUNT&quot; - &quot;TAX_AMOUNT&quot;)</formula>
+      </measure>
+    </calculatedMeasures>
     <restrictedMeasures/>
     <localDimensions/>
   </logicalModel>
