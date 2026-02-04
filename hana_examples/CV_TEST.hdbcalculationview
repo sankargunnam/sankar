@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_TEST" dataCategory="CUBE" hierarchiesSQLEnabled="false" defaultNode="#//Aggregation" clientDependent="true" applyPrivilegeType="SQL_ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="CV_TEST"/>
+  <executionHints/>
+  <viewNode xsi:type="View:Aggregation" name="Aggregation">
+    <element name="FIRST_NAME" aggregationBehavior="NONE" engineAggregation="NONE">
+      <endUserTexts label="FIRST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <element name="LAST_NAME" aggregationBehavior="NONE" engineAggregation="NONE">
+      <endUserTexts label="LAST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <element name="QUANTITY" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="QUANTITY"/>
+      <inlineType primitiveType="INTEGER" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="PRODUCT_ID" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="PRODUCT_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="UNIT_PRICE" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="UNIT_PRICE"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="DISCOUNT_AMOUNT" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="DISCOUNT_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="TAX_AMOUNT" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="TAX_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="SHIPPING_AMOUNT" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="SHIPPING_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//JN_CUST_SALES</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="FIRST_NAME" sourceName="FIRST_NAME"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LAST_NAME" sourceName="LAST_NAME"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="QUANTITY" sourceName="QUANTITY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PRODUCT_ID" sourceName="PRODUCT_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UNIT_PRICE" sourceName="UNIT_PRICE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DISCOUNT_AMOUNT" sourceName="DISCOUNT_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TAX_AMOUNT" sourceName="TAX_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SHIPPING_AMOUNT" sourceName="SHIPPING_AMOUNT"/>
+      <layout xCoordinate="70" yCoordinate="30"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="PR_CUSTOMERS">
+    <element name="CUSTOMER_ID">
+      <endUserTexts label="CUSTOMER_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="FIRST_NAME">
+      <endUserTexts label="FIRST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <element name="LAST_NAME">
+      <endUserTexts label="LAST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <input>
+      <entity>#//"SGUNNAM".CUSTOMERS</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="CUSTOMER_ID" sourceName="CUSTOMER_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FIRST_NAME" sourceName="FIRST_NAME"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LAST_NAME" sourceName="LAST_NAME"/>
+      <layout xCoordinate="70" yCoordinate="30"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="PR_SALES">
+    <element name="CUSTOMER_ID">
+      <endUserTexts label="CUSTOMER_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="ORDER_NUMBER">
+      <endUserTexts label="ORDER_NUMBER"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="QUANTITY">
+      <endUserTexts label="QUANTITY"/>
+      <inlineType primitiveType="INTEGER" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="PRODUCT_ID">
+      <endUserTexts label="PRODUCT_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="UNIT_PRICE">
+      <endUserTexts label="UNIT_PRICE"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="DISCOUNT_AMOUNT">
+      <endUserTexts label="DISCOUNT_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="TAX_AMOUNT">
+      <endUserTexts label="TAX_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="SHIPPING_AMOUNT">
+      <endUserTexts label="SHIPPING_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <input>
+      <entity>#//"SGUNNAM".SALES</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="ORDER_NUMBER" sourceName="ORDER_NUMBER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="QUANTITY" sourceName="QUANTITY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PRODUCT_ID" sourceName="PRODUCT_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UNIT_PRICE" sourceName="UNIT_PRICE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DISCOUNT_AMOUNT" sourceName="DISCOUNT_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TAX_AMOUNT" sourceName="TAX_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SHIPPING_AMOUNT" sourceName="SHIPPING_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CUSTOMER_ID" sourceName="CUSTOMER_ID"/>
+      <layout xCoordinate="70" yCoordinate="30"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="JN_CUST_SALES">
+    <element name="CUSTOMER_ID">
+      <endUserTexts label="CUSTOMER_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="FIRST_NAME">
+      <endUserTexts label="FIRST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <element name="LAST_NAME">
+      <endUserTexts label="LAST_NAME"/>
+      <inlineType primitiveType="NVARCHAR" length="100" precision="100" scale="0"/>
+    </element>
+    <element name="ORDER_NUMBER">
+      <endUserTexts label="ORDER_NUMBER"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="QUANTITY">
+      <endUserTexts label="QUANTITY"/>
+      <inlineType primitiveType="INTEGER" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="PRODUCT_ID">
+      <endUserTexts label="PRODUCT_ID"/>
+      <inlineType primitiveType="BIGINT" length="19" precision="19" scale="0"/>
+    </element>
+    <element name="UNIT_PRICE">
+      <endUserTexts label="UNIT_PRICE"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="DISCOUNT_AMOUNT">
+      <endUserTexts label="DISCOUNT_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="TAX_AMOUNT">
+      <endUserTexts label="TAX_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <element name="SHIPPING_AMOUNT">
+      <endUserTexts label="SHIPPING_AMOUNT"/>
+      <inlineType primitiveType="DECIMAL" length="12" precision="12" scale="2"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//PR_CUSTOMERS</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="CUSTOMER_ID" sourceName="CUSTOMER_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FIRST_NAME" sourceName="FIRST_NAME"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LAST_NAME" sourceName="LAST_NAME"/>
+      <layout xCoordinate="70" yCoordinate="30"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//PR_SALES</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="ORDER_NUMBER" sourceName="ORDER_NUMBER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="QUANTITY" sourceName="QUANTITY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PRODUCT_ID" sourceName="PRODUCT_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UNIT_PRICE" sourceName="UNIT_PRICE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DISCOUNT_AMOUNT" sourceName="DISCOUNT_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TAX_AMOUNT" sourceName="TAX_AMOUNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SHIPPING_AMOUNT" sourceName="SHIPPING_AMOUNT"/>
+      <layout xCoordinate="446" yCoordinate="30"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//JN_CUST_SALES/PR_CUSTOMERS" rightInput="#//JN_CUST_SALES/PR_SALES" joinType="inner" textJoin="false">
+      <leftElementName>CUSTOMER_ID</leftElementName>
+      <rightElementName>CUSTOMER_ID</rightElementName>
+    </join>
+  </viewNode>
+  <viewLayout relativeWidthScenario="39"/>
+</View:ColumnView>
