@@ -306,6 +306,41 @@ for file in $(find src/models -name "*.hdbcalculationview"); do
     # hdbsql -n $HANA_HOST:$HANA_PORT -u $HANA_USER -p $HANA_PASSWORD -i $file
 done
 
+# ⭐ CRITICAL STEP: Activate objects after deployment
+echo "Activating all deployed objects..."
+./scripts/activate-objects.sh $ENV
+
+# See HANA_OBJECT_ACTIVATION_CICD.md for detailed activation strategies
+
+echo "Deployment and activation complete!"
+```
+
+**⚠️ IMPORTANT:** After deploying files to HANA, objects must be **activated** to become functional. Without activation, objects remain in INACTIVE state and cannot be used. 
+
+See [HANA_OBJECT_ACTIVATION_CICD.md](HANA_OBJECT_ACTIVATION_CICD.md) for:
+- Activation commands and methods
+- CI/CD integration strategies
+- Error handling
+- Environment-specific approaches
+
+**activate-objects.sh** example:
+```bash
+#!/bin/bash
+# activate-objects.sh
+# Activates all HANA objects after deployment
+
+ENV=$1
+source config/${ENV}.conf
+
+for cv_file in src/models/*.hdbcalculationview; do
+    CV_NAME=$(basename "$cv_file" .hdbcalculationview)
+    
+    hdbsql -n ${HANA_HOST}:${HANA_PORT} \
+           -u ${HANA_USER} \
+           -p ${HANA_PASSWORD} \
+           "CALL _SYS_REPO.ACTIVATE_OBJECT('${SCHEMA}.${CV_NAME}', 'CALCULATION_VIEW', 'SYSTEM')"
+done
+
 # Deploy tables
 echo "Deploying tables..."
 for file in $(find src/tables -name "*.hdbtable"); do

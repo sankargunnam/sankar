@@ -22,7 +22,8 @@ This repository contains documentation and guides for working with SAP HANA and 
 
 ### Version Control & CI/CD
 - [GitHub Commands Reference](github_commands) - Basic Git commands and workflows
-- **[🔧 HANA Git & CI/CD Integration Guide](HANA_GIT_CICD_INTEGRATION.md)** ⭐ NEW - Complete guide for integrating Git and CI/CD with HANA Studio on-premise
+- **[🔧 HANA Git & CI/CD Integration Guide](HANA_GIT_CICD_INTEGRATION.md)** ⭐ - Complete guide for integrating Git and CI/CD with HANA Studio on-premise
+- **[⚡ HANA Object Activation in CI/CD](HANA_OBJECT_ACTIVATION_CICD.md)** ⭐ NEW - How objects get activated automatically in higher environments
 
 ## Using GitHub Agent for HANA Development
 
@@ -48,4 +49,18 @@ This guide covers:
 - **CI/CD Pipelines**: GitHub Actions and Jenkins examples
 - **Deployment Automation**: Scripts for automated HANA deployments
 - **Best Practices**: Repository structure, branching strategy, security
+
+## HANA Object Activation in CI/CD
+
+**Question:** How will objects get activated in higher environments when we move them through CI/CD?
+
+**Answer:** Check out our comprehensive guide: [HANA_OBJECT_ACTIVATION_CICD.md](HANA_OBJECT_ACTIVATION_CICD.md)
+
+This guide covers:
+- **What is Activation**: Understanding HANA object activation
+- **Activation Methods**: hdbsql, REST API, HDI deployment
+- **CI/CD Integration**: Automated activation in pipelines
+- **Environment-Specific**: Different strategies for DEV/TEST/PROD
+- **Error Handling**: Dealing with activation failures
+- **Complete Scripts**: Ready-to-use Bash and Python scripts
 - **Complete Workflows**: Step-by-step implementation examples
