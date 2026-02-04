@@ -15,6 +15,7 @@ This directory contains example HANA calculation views that demonstrate how GitH
 - `CV_TEST_1_TEST_CASES.md` - **Comprehensive test cases for CV_TEST 1** (19 test scenarios)
 - `CV_TEST_1_QUICK_REFERENCE.md` - **Quick reference guide for CV_TEST 1 testing**
 - `CV_TEST_1_PARAMETER_GUIDE.md` - **Product name parameter usage guide**
+- `CV_TEST_1_SQL_EQUIVALENT.sql` - **HANA SQL equivalent of CV_TEST 1 calculation view** ✨ (NEW)
 
 ## CV_TEST 1 - Test Documentation
 
@@ -35,6 +36,13 @@ The CV_TEST 1 calculation view has comprehensive test documentation including:
 - Common issues and solutions
 - Pass/Fail criteria
 
+#### 📝 SQL Equivalent (`CV_TEST_1_SQL_EQUIVALENT.sql`)
+- Complete HANA SQL representation of CV_TEST 1
+- 3 different SQL formats (Simple SELECT, SQLScript, CTE)
+- Usage examples and parameter handling
+- Performance optimization notes
+- Testing queries
+
 ### Features in CV_TEST 1
 1. **Products Join** - Displays PRODUCT_NAME instead of PRODUCT_ID
 2. **SELLING_PRICE Calculated Measure** - Formula: UNIT_PRICE - DISCOUNT_AMOUNT - TAX_AMOUNT
@@ -48,6 +56,13 @@ SELECT COUNT(DISTINCT FIRST_NAME) FROM CV_TEST; -- Should return 3 (active custo
 
 -- Test with product parameter
 SELECT * FROM CV_TEST('IP_PRODUCT_NAME' => 'Laptop'); -- Filter by Laptop
+
+-- Or use the SQL equivalent (see CV_TEST_1_SQL_EQUIVALENT.sql)
+WITH PR_CUSTOMERS AS (
+    SELECT CUSTOMER_ID, FIRST_NAME, LAST_NAME
+    FROM SGUNNAM.CUSTOMERS WHERE STATUS = 'Active'
+), ...
+-- See full query in CV_TEST_1_SQL_EQUIVALENT.sql
 ```
 
 ## How to Use These Examples
@@ -67,6 +82,7 @@ Ask GitHub Agent to:
 - Add filters and variables
 - Generate documentation
 - **Create comprehensive test cases** (as demonstrated with CV_TEST 1)
+- **Convert calculation views to SQL** (see CV_TEST_1_SQL_EQUIVALENT.sql)
 
 ## Testing Best Practices
 
